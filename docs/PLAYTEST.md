@@ -6,18 +6,19 @@ Archiv. Richtung revidiert, siehe DECISIONS.md.
 
 ## Prototyp 4 (work/prototyp4_klumpen.html) – 2026-09-07
 
-**Hypothese:** Kaputtmachen an einer gezielten Stelle fühlt sich nach etwas an, und die Stelle macht einen Unterschied. Fahrzeugsteuerung plus Maus-Ziel ist nicht zu viel.
-
-**Reaktion von Tobias:** Stelle macht keinen spürbaren Unterschied. Fahrzeugsteuerung "meh". Halten "meh", Zusehen auch. Klumpen, die kleiner werden: gut.
-
-**Technischer Fehler:** Klicken und Ziehen hat die Seite verschoben (Textauswahl). In P5 behoben.
+**Reaktion:** Stelle-zielen macht keinen Unterschied. Fahrzeug "meh". Klumpen, die kleiner werden: gut.
 
 ## Prototyp 5 (work/prototyp5_hover.html) – 2026-09-07
 
-**Hypothese:** Hover-Zielen (Maus zeigt, kein Klick) plus direkte WASD-Bewegung fühlt sich in Nahsicht besser an als Fahrzeug plus Klick.
+**Reaktion:** "Viel besser, fühlt sich schon recht gut an." Baseline.
 
-**Reaktion von Tobias:** "Viel besser, fühlt sich schon recht gut an, wirklich." Sieht Anschlüsse für Reichweiten-Upgrades und andere Werkzeuge. **Soll als erster tragender Stand stehen bleiben.** Noch nicht ausgereift, aber der Kern trägt.
+## Prototyp 6 (work/prototyp6_upgrades.html) – 2026-09-07
 
-**Damit bestätigt:** Nahsicht, Hover ohne Klick, WASD direkt, Arm als Turm, Klumpen aus Teilen ohne HP.
+**Hypothese:** Je ein Vertreter pro Upgrade-Sorte zeigt, welchen Ton der Baum haben soll.
 
-**Noch offen (nicht getestet):** Ob Versperren durch Klumpen als Gängelung wirkt; ob 50 Schläge pro Klumpen die richtige Mühsal sind; ob Kern und "zu hart" verständlich sind.
+**Reaktion von Tobias:**
+- **Kehrbesen-Roboter (Werkzeug/Automatik): sehr gut.** "Warum muss ich grinsen? Der herumwuselnde Roboter ist geil." Daraus die Entscheidung: nie ein Magnet, auch später nicht – Einsammeln immer durch Roboter/Arme, die man sieht.
+- **Reichweite (Zahl): "eher egal" in dieser Demo**, aber als Sorte in Ordnung, für später sowieso.
+- **Kettenblitz (Proc): unspektakulär**, aber als Mechanik nicht falsch. Man sieht ihn zu wenig, weil er mitten im Klumpen springt. Befund: Darstellung (Sichtbarkeit, Wackeln, Ton), nicht Gefühl.
+
+**Schluss:** Der Baum bekommt seinen Ton aus sichtbaren Helfern und Anbauten. Procs bleiben, brauchen aber Sichtbarkeit von oben (Blitz über dem Klumpen, nicht drin; kurzes Aufleuchten des getroffenen Teils; eigener Hitstop).
