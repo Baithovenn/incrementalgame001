@@ -13,23 +13,28 @@ Format:
 
 ---
 
-## 2026-09-07 - Kernrichtung: Buddeln mit Erdphysik
+## 2026-09-07 - REVIDIERT: Seitenansicht und Sand-Simulation
 
-**Entscheidung:** Kernhandlung ist Graben in Erde mit Schwerkraft. 2D Seitenansicht, Figur direkt gesteuert. Runs enden durch vollen Sack, nicht durch Timer.  
-**Warum:** Tobias' Spielgeschmack (Keep on Mining, GrassChopper, RoR2, DRG: Survivor): schwacher Start, sichtbare Eskalation, Runs mit Meta-Fortschritt, große Skilltrees mit spielverändernden Knoten. Erdphysik liefert das "Gang fällt zu" ohne künstliche Regel und macht die Grabrichtung zur Entscheidung.  
-**Verworfen / Alternative:** Senkrecht nach unten (kein Entscheidungsraum), Fels-als-Gegner (zu nah an DRG: Survivor), 3D und Draufsicht (Schwerkraft nicht sichtbar), Cursor-Steuerung wie Keep on Mining.  
-**Revidieren wenn:** Der erste Prototyp zeigt, dass Graben mit Physik allein nicht spannend ist.
+**Entscheidung:** Seitenansicht und Erde als Fallende-Sand-Physik sind verworfen (Prototypen 1–3 in work/ sind damit Archiv).  
+**Warum:** Trägt für Tobias nicht; Sand-Engine nicht mehr plausibel als Kern.  
+**Was bleibt:** Abbauen als Kernhandlung, schwacher Start und Eskalation, Runs plus Meta, Roboter der sich umbaut, großer Baum mit spielverändernden Knoten, keine Logistik, kein Klicker.
 
-## 2026-09-07 - Spielfigur ist ein Roboter
+## 2026-09-07 - Kernrichtung: Klumpenfeld von oben, 2,5D
 
-**Entscheidung:** Der Spieler ist ein Roboter, Upgrades sind Umbauten am Roboter.  
-**Warum:** Metaprogress wird am Körper sichtbar statt in einer Liste. Passt zur Fantasie "schwach anfangen, eskalieren".  
-**Verworfen / Alternative:** Menschlicher Bergmann.  
-**Revidieren wenn:** Nie nötig, betrifft nur Darstellung.
+**Entscheidung:** Draufsicht schräg von oben in 3D-Optik. Roboter auf Raupen (WASD), Maus zielt eine Stelle am Klumpen, Taste halten arbeitet. Klumpen ohne HP, als Traube aus Teilen, die an der Trefferstelle abbrechen. Kern innen, anfangs nicht abbaubar; Nachwachsen nur aus dem Kern.  
+**Warum:** Widerstand durch Form statt Zahl (sonst +%-Baum). Stelle-zielen macht Zielen zur Fähigkeit und passt zu "Maschine führt Auftrag aus". Kern-Regel vermeidet Upgrades, die die eigene Mechanik abschalten.  
+**Verworfen / Alternative:** HP-Balken; Twin-Stick; Kontakt = Angriff; "wächst nicht mehr nach" als Upgrade.  
+**Revidieren wenn:** Der HTML-Test zeigt, dass die Trefferstelle keinen spürbaren Unterschied macht.
 
-## 2026-09-07 - Verschüttet werden ist weich
+## 2026-09-07 - Akku nur für Arbeit, Entfernung kostet Weg
 
-**Entscheidung:** Unter Erde: langsam + Energieverlust über Zeit, freigraben möglich. Kein Respawn am Eingang.  
-**Warum:** Respawn am Eingang würde den ganzen Gang verlieren (Erde rutscht nach). Harter Tod passt nicht zum Fokus auf Buddeln statt Überleben.  
-**Verworfen / Alternative:** Instant-Tod mit Respawn leer am Eingang.  
-**Revidieren wenn:** Der Prototyp zeigt, dass Verschüttetwerden ohne echte Konsequenz keine Spannung erzeugt.
+**Entscheidung:** Fahren kostet keinen Akku, Heimfahren wird nicht bestraft. Entfernung wird durch versperrende Klumpen begrenzt.  
+**Warum:** Tobias will kein Basis-Gegeiere. Ohne irgendeinen Preis für Entfernung würden nahe Klumpen nie bearbeitet; Versperren löst das und macht "Feld räumen" und "weiter rauskommen" zu derselben Sache.  
+**Verworfen / Alternative:** Fahrakku; Zurückholen bei leerem Akku.  
+**Revidieren wenn:** Versperren im Test als Gängelung wirkt.
+
+## 2026-09-07 - Erst HTML-Gefühlstest, dann Godot
+
+**Entscheidung:** Kern in einer HTML-Datei testen, Godot erst wenn der Kern trägt.  
+**Warum:** Godot rettet ein Gefühl nicht, das in 2D nicht da ist; HTML ist in Stunden iterierbar.  
+**Revidieren wenn:** Der Test etwas braucht, das nur 3D liefert (Tiefe, echte Bruchgeometrie).

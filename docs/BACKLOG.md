@@ -2,18 +2,19 @@
 
 ## NOW
 
-- Schaufelgefühl isoliert iterieren (work/prototyp2_schaufelgefuehl.html): Roboter groß, Erde rechts als Haufen, Schaufelparameter live einstellbar. Erst wenn das Gefühl trägt, zurück zum Loop (Sack, Sieb, Upgrade).
+- Planung abschließen: Steuerungsmodell "Stelle zielen" und Klumpenmodell festziehen (siehe GAME_DESIGN.md).
 
 ## NEXT
 
-- Gefundene Parameter als Standard festschreiben, in Prototyp 1 übernehmen.
-- Tobias spielen lassen, konkrete Reaktion in PLAYTEST.md dokumentieren.
-- Materialhärte (lockere Erde / Lehm / Stein) als nächster Gefühlsschritt.
+- HTML-Gefühlstest: Draufsicht, fünf Klumpen, ein Werkzeug, Akku, Einsammeln. Testfrage: Kaputtmachen fühlt sich nach etwas an, Stelle macht Unterschied.
+- Tobias spielen lassen, Reaktion in PLAYTEST.md.
 
 ## LATER
 
-- Stützen als tragbarer Gegenstand.
-- Weitere Upgrades, die die Form des Grabens ändern.
-- Stützpunkte draußen als "Karten".
-- Story-Ton (Roboter wird hoffnungsvoller).
-- Erst nach erfolgreichem Kernloop: Automation, Prestige, Save-System, Content, Technik-Ausbau.
+- Kerne abbaubar, Nachwachsen, Feld leer räumen.
+- Nebel und Sensoren.
+- Weitere Werkzeuge (Bruchform), Stauraum, Sammler.
+- Risse/Bruchstellen.
+- Feld als Schacht-/Gangsystem (Phase 2).
+- Umzug nach Godot.
+- Erst nach erfolgreichem Kernloop: Prestige, Save-System, Content, Technik-Ausbau.

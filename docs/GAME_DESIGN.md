@@ -4,75 +4,70 @@
 
 ## Arbeitstitel
 
-Offen (Arbeitsname intern: "Buddeln")
+Offen (intern: "Klumpen")
 
 ## Spielerfantasie
 
-Ein Roboter gräbt sich aus der Erde frei. Er startet schwach und mutlos, wird mit jedem Meter fähiger. Die Erde ist kein Gegner, sondern Masse: sie liegt über dir und kommt runter, wenn sie nichts hält.
+Ein Roboter auf Raupen arbeitet ein Feld aus lehmigen Erdklumpen ab. Er fängt schwach an (zwei, drei Klumpen pro Ladung), baut sich selbst um und eskaliert, bis der Bildschirm voller Brocken ist. Man macht etwas kaputt, auf das man zielt, und sieht es langsam zerfallen.
 
-Kein Mensch, sondern ein Roboter, weil der Spieler ihn selbst umbaut. Metaprogress ist sichtbar am Chassis, nicht nur in einer Liste.
+## Ansicht und Steuerung
 
-## Kernloop (Hypothese, noch ungetestet)
+- 2,5D: Draufsicht schräg von oben, 3D-Optik.
+- WASD fährt den Roboter.
+- Maus zielt eine Stelle am Klumpen. Kein Twin-Stick: der Roboter dreht sich träge dorthin, das Werkzeug fährt die Stelle an (prozedural, IK), Taste halten arbeitet im Takt.
 
-1. Vom Sieb aus in die Erde graben (seitlich, nach oben, nicht primär nach unten).
-2. Gelöste Erde landet im Sack. Sack voll = zurück.
-3. Am Sieb wird Erde zu Wert (Erz, Mineralien). Erde von weiter draußen enthält mehr.
-4. Wert -> Upgrade am Roboter -> weiter raus.
+## Kernloop (Hypothese)
 
-## Spieleraktionen
+1. Von der Basis ins Feld fahren, so weit der Weg frei ist.
+2. Klumpen wählen, Stelle anzielen, arbeiten. Teile lösen sich, liegen als Brocken herum.
+3. Drüberfahren sammelt. Stauraum ist begrenzt.
+4. Zurück zur Basis: abladen, sieben, laden, umbauen.
 
-- Figur direkt steuern (WASD).
-- Graben in Bewegungsrichtung.
-- Zurücklaufen zum Sieb.
+## Klumpen
 
-## Interessante Entscheidung / Spannung
+- Kein HP. Ein Klumpen ist eine Traube aus Teilen, weich verschmolzen, zufällig in Größe und Form.
+- Ein Treffer löst Teile an der Werkzeugspitze, abhängig von Werkzeugkraft gegen Bindung. Man sieht, wo man getroffen hat.
+- Härte ist Bindung. Zu hart heißt: gibt nichts her, nicht wenig.
+- Innen ein Kern: härter, ergiebigster Inhalt. Anfangs nicht abbaubar.
+- Klumpen wachsen langsam aus ihrem Kern nach. Kern raus = bleibt leer. Feld ohne Kerne bleibt leer und gibt das nächste frei.
+- Später: sichtbare Risse als Schwachstellen; Treffer auf den Riss bricht mehr ab.
 
-- Erde hat Schwerkraft (Fallende-Sand-Physik). Nach oben graben löst Erde über dir. Seitlich ist sicherer, nach oben gefährlicher und oft der einzige Weg raus.
-- Gänge fallen nicht per Regel zu, sondern weil Erde nachrutscht. Der Rückweg ist Teil des Runs.
-- Sackplatz ist knapp: bessere Erde weiter draußen gegen längeren, riskanteren Rückweg.
+## Widerstand / Spannung
 
-## Ressourcen
+- Arbeitsakku: nur Arbeiten kostet, Fahren nicht. Laden nur an der Basis = Run-Ende. Heimfahren wird nicht bestraft.
+- Stauraum: Auswahl, was mitkommt.
+- Entfernung kostet Weg: Klumpen versperren. Weiter draußen kommt man nur hin, wenn nahe der Basis frei geräumt ist.
+- Bodenhärte beeinflusst Fahren (Tempo), nicht den Akku.
 
-- Erde (Ballast, wird erst am Sieb zu Wert).
-- Wert aus dem Sieb (Erz/Mineralien, genaue Aufteilung offen).
+## Feld
+
+- Unregelmäßig, kein Rechteck. Nebel: sichtbar ist, was in Sensorreichweite liegt.
+- Sensor-Upgrades: erst Reichweite (1 Klumpen weit, dann 2, 3, 4), dann was man über Klumpen sieht (Form, Härte, Inhalt, Risse).
 
 ## Wachstum / Progression
 
-- Upgrades am Roboter selbst. Erst Sackgröße, später Werkzeuge, die die *Form* des Grabens ändern (nicht nur +% Geschwindigkeit).
-- Stützen als tragbarer Gegenstand: Sackplatz gegen Sicherheit, vom Spieler platziert.
-
-## Verschüttet werden
-
-Weiche Variante: Unter Erde wird der Roboter langsam und verliert Energie über Zeit, bis er sich freigegraben hat. Kein Instant-Tod, kein Respawn am Eingang (Gang wäre dann zu, Fortschritt weg). Was bei Energie 0 passiert, ist offen.
-
-## Automation
-
-Nicht vorausgesetzt.
-
-## Reset / Prestige
-
-Nicht vorausgesetzt.
+- Roboter (bleibend): Werkzeuge, die die Form des Bruchs ändern (Hacke punktuell/tief, Schaufel flach/breit, Ramme spaltet, Bohrer frisst durch), Akku, Stauraum, Sensoren, später Sammler/Magnet.
+- Feld (pro Karte): räumt sich, gibt das nächste frei; Basis dort = Stützpunkt.
 
 ## Feedback und Spielgefühl
 
-Das Graben selbst muss sich befriedigend anfühlen. Das ist das größte Risiko und wird im ersten Prototyp zuerst geprüft.
+Bewegung und Abbauen müssen zuerst gut sein. Bruch an der richtigen Stelle, Brocken, die fliegen und liegen bleiben, Einsammeln durch Drüberfahren.
 
 ## Erster spielbarer Test
 
-Eine HTML-Datei. Raster aus Erde mit Fallende-Sand-Physik, Figur mit WASD, Graben in Laufrichtung, Startkammer mit Sieb, Sack mit fester Kapazität, ein einziges Upgrade (Sackgröße).
-
-Testfrage: Ist "nach oben graben, während Erde runterkommt" ohne irgendetwas sonst schon spannend, und fühlt sich der Weg zurück zum Sieb wie eine Belohnung an?
+HTML, Draufsicht, Klumpen als schattierte Kugeltrauben, ein Werkzeug, ein Akku, fünf Klumpen, kein Nebel. Testfrage: Fühlt sich das Kaputtmachen nach etwas an, und macht die Stelle einen Unterschied?
 
 ## Explizit nicht gewollt
 
-- Kein Cookie-Clicker-Button.
-- Keine Logistik-/Fabrikoptimierung (Factorio, Satisfactory).
-- Kein Zufallen des Gangs per Timer oder Regel; nur durch Physik.
-- Kein "GrassChopper mit Erde": Die Physik muss den Unterschied tragen.
-- Kein 3D, keine Draufsicht: Man muss sehen, was über einem hängt.
+- Kein Klicker, keine Logistikoptimierung.
+- Kein HP-Balken als Widerstand.
+- Keine Upgrades, die eine Mechanik abschalten ("wächst nicht mehr nach").
+- Kein Twin-Stick.
+- Keine Bestrafung fürs Heimfahren.
 
-## Später (nicht im Prototyp)
+## Später (Phase 2)
 
-- Stützpunkte weiter draußen, die wie Karten/Welten wirken.
-- Story-Ton: Roboter wird mit jedem Meter hoffnungsvoller.
-- Explosionen als zweischneidiges Werkzeug (Erde muss irgendwohin).
+- Feld als Schacht-/Gangsystem, durch das man durch muss.
+- Risse/Bruchstellen.
+- Story-Ton (Roboter wird hoffnungsvoller).
+- Umzug nach Godot, sobald der Kern in HTML trägt.
