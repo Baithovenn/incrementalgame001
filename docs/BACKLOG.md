@@ -2,19 +2,20 @@
 
 ## NOW
 
-- Prototyp 6 testen: je ein Vertreter pro Upgrade-Sorte (Zahl: Reichweite · Proc: Kettenblitz · Werkzeug: Kehrbesen). Testfrage: Welche Sorte fühlt sich am besten an, und spielt man nach dem Kauf anders oder nur schneller?
+- Prototyp 7 testen: Meißel-Roboter (bricht, mehrfach kaufbar) neben Kehrbesen (sammelt, mehrfach). Testfragen: Macht ein Helfer, der bricht, genauso Freude wie einer, der sammelt? Und: Was macht der Spieler selbst, wenn drei Meißler arbeiten?
 
 ## NEXT
 
-- Baum-Ton festlegen (eher Procs / eher Werkzeuge / Mischung) auf Basis des Tests.
+- Rolle des Hauptroboters im Spätspiel festlegen (Route, Auswahl, Basis, Bau) – Pikmin-Frage.
 - Feld größer, Klumpen versperren wirklich, Nebel/Sensor.
-- Tuning offen: Schläge pro Klumpen, Brockenmenge, Stauraum, Kosten.
+- Proc-Sichtbarkeit (Blitz über dem Klumpen, Aufleuchten, eigener Hitstop).
+- Tuning: Schläge pro Klumpen, Brockenmenge, Stauraum, Kosten, Helfer-Reichweite.
 
 ## LATER
 
+- Schwarm-Vision: Spinnen-Roboter auf Brocken, fliegende Drohnen, Helfer-Upgrades (Reichweite, Tempo, Werkzeug). Noch nicht fix.
 - Kerne abbaubar (Eis/Säure), Nachwachsen, Feld leer räumen.
 - Elemente als Bindungs-Veränderer.
-- Werkzeugplätze am Roboter (vorn/links/rechts/unten) sichtbar.
-- Klumpen-Optik: überlappend, größer, kantig, lehmig (mit Godot-Umzug).
+- Klumpen-Optik (mit Godot). Helfer mit Charakter-Animation (Meißler hüpft auf den Stein).
 - Story-Ton.
 - Erst nach stabilem Loop: Prestige, Save-System, Content.
