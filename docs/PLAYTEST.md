@@ -1,23 +1,17 @@
 # Playtest
 
-## Prototyp 1 (work/prototyp1.html) – 2026-09-07
+## Prototypen 1–3 (Seitenansicht, Sand) – 2026-09-07
 
-**Hypothese:** Nach oben graben, während Erde runterkommt, ist ohne Gegner und ohne weitere Systeme schon spannend; der Rückweg zum Sieb fühlt sich wie Belohnung an.
+Archiv. Richtung revidiert, siehe DECISIONS.md.
 
-**Reaktion von Tobias:** "Schon nicht so schlecht", aber zu früh für den ganzen Loop. Erst das Grabgefühl isolieren.
+## Prototyp 4 (work/prototyp4_klumpen.html) – 2026-09-07
 
-## Prototyp 2 (work/prototyp2_schaufelgefuehl.html) – 2026-09-07
+**Hypothese:** Kaputtmachen an einer gezielten Stelle fühlt sich nach etwas an, und die Stelle macht einen Unterschied. Fahrzeugsteuerung plus Maus-Ziel ist nicht zu viel auf einmal.
 
-**Hypothese:** Spatenbogen mit Ausholen/Schlag/Hitstop fühlt sich nach etwas an.
+**Drin:** Fahrzeug (W/S Gas, A/D lenken, Drehen auf der Stelle, Trägheit), Arm vorn mit Arbeitssektor und IK, Maus wählt Klumpenteil, Halten schlägt im Takt (Ausholen/Schlag), fünf Klumpen aus Kugeln mit steigender Härte, Kern innen (härter als das Werkzeug), Brocken fliegen und bleiben liegen, Drüberfahren sammelt, Akku nur für Arbeit, Stauraum, Basis lädt und nimmt ab. Klumpen versperren den Weg.
 
-**Reaktion von Tobias:** Trägt nicht. Der Roboter schaufelt im Grunde nur nach oben, wirkt nicht wie Maschinenarbeit.
+**Regler:** Kraft, Takt, Wucht (Radius um die Trefferstelle), Hitstop.
 
-**Schluss:** Kein Spatenbogen. Stattdessen Baggerarm/Schubschaufel: horizontal eindringen, eincurlen, zurückziehen.
-
-## Prototyp 3 (work/prototyp3_baggerarm.html) – 2026-09-07
-
-**Hypothese:** Eindringen -> lösen -> rieseln -> nachrutschen ist als Kette lesbar und fühlt sich nach Maschinenarbeit an.
-
-**Aufbau:** Links Arbeitsraum mit großem Roboter (Raupe, Zweigelenkarm). Rechts Erdmasse hinter senkrechter Absperrung, unten Öffnung 100 px. Schaufel fährt horizontal durch die Öffnung in die Wand, curlt, zieht zurück, kippt vor dem Roboter ab. Erde um die Schaufel wird lokal gelockert und rieselt durch die Öffnung.
+**Gemessen (ohne Browser):** Klumpen 1 (weichster) braucht mit Kraft 3 etwa 52 Schläge und wirft ~90 Brocken ab. Akku 100 = 100 Schläge, also knapp zwei Klumpen.
 
 **Reaktion von Tobias:** (offen)
