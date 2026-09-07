@@ -21,20 +21,33 @@ Format:
 
 ## 2026-09-07 - Kernrichtung: Klumpenfeld von oben, 2,5D
 
-**Entscheidung:** Draufsicht schräg von oben in 3D-Optik. Roboter auf Raupen (WASD), Maus zielt eine Stelle am Klumpen, Taste halten arbeitet. Klumpen ohne HP, als Traube aus Teilen, die an der Trefferstelle abbrechen. Kern innen, anfangs nicht abbaubar; Nachwachsen nur aus dem Kern.  
-**Warum:** Widerstand durch Form statt Zahl (sonst +%-Baum). Stelle-zielen macht Zielen zur Fähigkeit und passt zu "Maschine führt Auftrag aus". Kern-Regel vermeidet Upgrades, die die eigene Mechanik abschalten.  
-**Verworfen / Alternative:** HP-Balken; Twin-Stick; Kontakt = Angriff; "wächst nicht mehr nach" als Upgrade.  
-**Revidieren wenn:** Der HTML-Test zeigt, dass die Trefferstelle keinen spürbaren Unterschied macht.
+**Entscheidung:** Draufsicht schräg von oben in 3D-Optik. Klumpen ohne HP, als Traube aus Teilen, die an der Trefferstelle abbrechen und sichtbar kleiner werden. Kern innen, anfangs nicht abbaubar; Nachwachsen nur aus dem Kern.  
+**Warum:** Widerstand durch Form statt Zahl. Kern-Regel vermeidet Upgrades, die die eigene Mechanik abschalten. P4 hat bestätigt: Klumpen, die kleiner werden, tragen.  
+**Verworfen / Alternative:** HP-Balken; "wächst nicht mehr nach" als Upgrade.  
+**Revidieren wenn:** –
+
+## 2026-09-07 - REVIDIERT: Stelle zielen und Fahrzeugsteuerung
+
+**Entscheidung:** "Maus wählt eine Stelle am Klumpen" und Fahrzeugsteuerung (W/S Gas, A/D lenken, Arm vorn mit Sektor) sind verworfen.  
+**Warum:** P4: Die Stelle macht keinen spürbaren Unterschied, man haut, bis es weg ist. Ohne genaues Zielen fällt das Argument für Rangieren weg; Fahren war "meh".  
+**Neu:** WASD direkte Richtung mit etwas Gewicht. Arm als Turm oben, 360°. Hover: Maus zeigt, wo gearbeitet wird, kein Klick.  
+**Revidieren wenn:** P5 zeigt, dass Hover ohne Klick zu passiv ist.
+
+## 2026-09-07 - Bogen: Handarbeit wird Automatik
+
+**Entscheidung:** Früh zeigt der Spieler, wo gearbeitet wird; später weiten Upgrades den Bereich, in dem der Roboter von selbst arbeitet. Elemente (Feuer, Eis, Blitz, Säure, Explosion) verändern die Bindung der Klumpen, nicht "Schaden": Feuer = bröselt weiter, Eis = hart wird spröde, Blitz = springt, Säure = frisst Kerne, Explosion = Wucht ohne Richtung.  
+**Warum:** Löst den Widerspruch zwischen frühem Zielen und spätem Durchrödeln; bleibt im Modell ohne HP.  
+**Verworfen / Alternative:** Elemente als Schadenstypen.  
+**Revidieren wenn:** –
 
 ## 2026-09-07 - Akku nur für Arbeit, Entfernung kostet Weg
 
 **Entscheidung:** Fahren kostet keinen Akku, Heimfahren wird nicht bestraft. Entfernung wird durch versperrende Klumpen begrenzt.  
-**Warum:** Tobias will kein Basis-Gegeiere. Ohne irgendeinen Preis für Entfernung würden nahe Klumpen nie bearbeitet; Versperren löst das und macht "Feld räumen" und "weiter rauskommen" zu derselben Sache.  
-**Verworfen / Alternative:** Fahrakku; Zurückholen bei leerem Akku.  
+**Warum:** Ohne irgendeinen Preis für Entfernung würden nahe Klumpen nie bearbeitet.  
 **Revidieren wenn:** Versperren im Test als Gängelung wirkt.
 
 ## 2026-09-07 - Erst HTML-Gefühlstest, dann Godot
 
-**Entscheidung:** Kern in einer HTML-Datei testen, Godot erst wenn der Kern trägt.  
-**Warum:** Godot rettet ein Gefühl nicht, das in 2D nicht da ist; HTML ist in Stunden iterierbar.  
-**Revidieren wenn:** Der Test etwas braucht, das nur 3D liefert (Tiefe, echte Bruchgeometrie).
+**Entscheidung:** Kern in HTML testen, Godot erst wenn der Kern trägt.  
+**Warum:** Godot rettet ein Gefühl nicht, das in 2D nicht da ist.  
+**Revidieren wenn:** Der Test etwas braucht, das nur 3D liefert.

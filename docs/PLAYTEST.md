@@ -6,12 +6,18 @@ Archiv. Richtung revidiert, siehe DECISIONS.md.
 
 ## Prototyp 4 (work/prototyp4_klumpen.html) – 2026-09-07
 
-**Hypothese:** Kaputtmachen an einer gezielten Stelle fühlt sich nach etwas an, und die Stelle macht einen Unterschied. Fahrzeugsteuerung plus Maus-Ziel ist nicht zu viel auf einmal.
+**Hypothese:** Kaputtmachen an einer gezielten Stelle fühlt sich nach etwas an, und die Stelle macht einen Unterschied. Fahrzeugsteuerung plus Maus-Ziel ist nicht zu viel.
 
-**Drin:** Fahrzeug (W/S Gas, A/D lenken, Drehen auf der Stelle, Trägheit), Arm vorn mit Arbeitssektor und IK, Maus wählt Klumpenteil, Halten schlägt im Takt (Ausholen/Schlag), fünf Klumpen aus Kugeln mit steigender Härte, Kern innen (härter als das Werkzeug), Brocken fliegen und bleiben liegen, Drüberfahren sammelt, Akku nur für Arbeit, Stauraum, Basis lädt und nimmt ab. Klumpen versperren den Weg.
+**Reaktion von Tobias:** Stelle macht keinen spürbaren Unterschied ("draufgehauen bis weg"). Fahrzeugsteuerung "meh". Halten "meh", Zusehen auch. **Klumpen, die kleiner werden: gut, als Gefühls-Prototyp "top".**
 
-**Regler:** Kraft, Takt, Wucht (Radius um die Trefferstelle), Hitstop.
+**Technischer Fehler:** Klicken und Ziehen hat die Seite verschoben (Browser-Textauswahl auf dem Canvas). Hat das Halten vermutlich mit vergiftet. In P5 behoben.
 
-**Gemessen (ohne Browser):** Klumpen 1 (weichster) braucht mit Kraft 3 etwa 52 Schläge und wirft ~90 Brocken ab. Akku 100 = 100 Schläge, also knapp zwei Klumpen.
+**Schluss:** Stelle-zielen und Fahrzeug verworfen. Klumpenmodell bleibt.
+
+## Prototyp 5 (work/prototyp5_hover.html) – 2026-09-07
+
+**Hypothese:** Hover-Zielen (Maus zeigt, kein Klick) plus direkte WASD-Bewegung fühlt sich in Nahsicht besser an als Fahrzeug plus Klick.
+
+**Drin:** Dreifache Vergrößerung, Kamera folgt weich, Zoom-Regler. Roboter schwebt, WASD direkt mit Trägheit, gleitet an Klumpen entlang. Arm als Turm oben, 360°, arbeitet automatisch am Teil in Reichweite, das dem Zeiger am nächsten liegt. Rest wie P4 (Klumpen, Kern, Brocken, Akku, Stauraum, Basis).
 
 **Reaktion von Tobias:** (offen)
