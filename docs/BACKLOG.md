@@ -2,13 +2,18 @@
 
 ## NOW
 
-- Eine tragfähige Kernidee / Kerninteraktion finden.
+- Entscheiden: Erde feinkörnig (Partikel) oder Blockraster. Betrifft das Grabgefühl direkt.
+- Ersten Prototyp bauen (siehe GAME_DESIGN.md, "Erster spielbarer Test").
 
 ## NEXT
 
-- Kleinsten spielbaren Prototyp der gewählten Hypothese bauen.
-- Tobias spielen lassen und konkrete Reaktion dokumentieren.
+- Tobias spielen lassen, konkrete Reaktion in PLAYTEST.md dokumentieren.
+- Grabgefühl nachschärfen: Partikel, Hitstop, Sack sichtbar füllen, Materialhärte.
 
 ## LATER
 
-- Erst nach erfolgreichem Kernloop entscheiden: Progression, Automation, Prestige, Save-System, Content, Technik-Ausbau.
+- Stützen als tragbarer Gegenstand.
+- Weitere Upgrades, die die Form des Grabens ändern.
+- Stützpunkte draußen als "Karten".
+- Story-Ton (Roboter wird hoffnungsvoller).
+- Erst nach erfolgreichem Kernloop: Automation, Prestige, Save-System, Content, Technik-Ausbau.
