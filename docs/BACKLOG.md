@@ -2,13 +2,13 @@
 
 ## NOW
 
-- Entscheiden: Erde feinkörnig (Partikel) oder Blockraster. Betrifft das Grabgefühl direkt.
-- Ersten Prototyp bauen (siehe GAME_DESIGN.md, "Erster spielbarer Test").
+- Schaufelgefühl isoliert iterieren (work/prototyp2_schaufelgefuehl.html): Roboter groß, Erde rechts als Haufen, Schaufelparameter live einstellbar. Erst wenn das Gefühl trägt, zurück zum Loop (Sack, Sieb, Upgrade).
 
 ## NEXT
 
+- Gefundene Parameter als Standard festschreiben, in Prototyp 1 übernehmen.
 - Tobias spielen lassen, konkrete Reaktion in PLAYTEST.md dokumentieren.
-- Grabgefühl nachschärfen: Partikel, Hitstop, Sack sichtbar füllen, Materialhärte.
+- Materialhärte (lockere Erde / Lehm / Stein) als nächster Gefühlsschritt.
 
 ## LATER
 
