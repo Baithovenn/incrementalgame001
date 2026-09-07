@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Klumpen – Prototyp 6: drei Upgrades</title>
+<style>
+  html,body{margin:0;background:#15110d;color:#d9cdb8;font:14px/1.4 Georgia,serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+  #wrap{display:flex;flex-direction:column;align-items:center;height:100vh}
+  canvas{background:#2a2219;max-width:100vw;display:block;touch-action:none;cursor:crosshair}
+  #hud{width:1040px;max-width:100vw;box-sizing:border-box;display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center;padding:8px 12px}
+  label{display:flex;gap:6px;align-items:center;white-space:nowrap}
+  label b,#hud b{color:#f0e2c4;font-weight:normal;min-width:2.2em;text-align:right}
+  input[type=range]{width:100px;accent-color:#c9a25a}
+  .dim{color:#8a7d68}
+  #say{width:100%;font-style:italic;color:#a89c86;min-height:1.4em}
+  button{background:#3a2e22;color:#f0e2c4;border:1px solid #6b5843;font:inherit;padding:2px 10px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="wrap">
+<canvas id="c" width="1040" height="600"></canvas>
+<div id="hud">
+  <span class="dim">WASD fahren · Maus zeigt, wo gearbeitet wird · an der Basis: 1 / 2 / 3 kauft</span>
+  <span id="shop" class="dim"></span>
+  <span>Akku <b id="bat">100</b></span>
+  <span>Stau <b id="st">0</b><span class="dim">/</span><b id="cap">40</b></span>
+  <span>Brocken <b id="ore">0</b></span>
+  <label>Kraft <input type="range" id="pow" min="1" max="10" value="3"><b>3</b></label>
+  <label>Takt <input type="range" id="beat" min="10" max="40" value="22"><b>22</b></label>
+  <label>Wucht <input type="range" id="rad" min="10" max="60" value="26"><b>26</b></label>
+  <label>Hitstop <input type="range" id="stop" min="0" max="8" value="3"><b>3</b></label>
+  <label>Zoom <input type="range" id="zoom" min="15" max="40" value="30"><b>30</b></label>
+  <button id="reset">Feld neu</button>
+  <span id="say"></span>
+</div>
+</div>
+<script>
+const cv=document.getElementById('c'), ctx=cv.getContext('2d'); const CW=cv.width, CH=cv.height;
+const P={}; for(const id of ['pow','beat','rad','stop','zoom']){const el=document.getElementById(id),o=el.nextElementSibling;const u=()=>{P[id]=+el.value;o.textContent=el.value;};el.oninput=u;u();}
+const sayEl=document.getElementById('say'); let sayT=0; function say(s){sayEl.textContent=s;sayT=400;}
+const Z=0.55;                       // Höhenversatz (Schrägsicht)
+const WW=1040, WH=600;              // Welt in Einheiten; Zoom/10 = Pixel pro Einheit
+
+// ---------------- Feld
+const BASE={x:110,y:WH-90,r:60};
+let lumps=[], chunks=[];
+function rnd(a,b){return a+Math.random()*(b-a);}
+function makeLump(cx,cy,size,hard){
+  const parts=[]; const n=Math.round(size*0.5+6);
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, d=Math.sqrt(Math.random())*size;
+    parts.push({x:cx+Math.cos(a)*d*1.15,y:cy+Math.sin(a)*d*0.85,r:rnd(13,24),bind:hard+rnd(-0.6,0.6),core:false,shade:rnd(-14,14)});
+  }
+  parts.push({x:cx,y:cy,r:size*0.42+8,bind:hard+6,core:true,shade:0});
+  return {parts,cx,cy};
+}
+function buildField(){
+  lumps=[];chunks=[];
+  const spots=[[330,420,42,2],[560,470,50,3],[420,230,46,3.5],[700,260,58,4.5],[880,440,54,5.5]];
+  for(const [x,y,s,h] of spots) lumps.push(makeLump(x,y,s,h));
+}
+buildField();
+document.getElementById('reset').onclick=buildField;
+
+// ---------------- Roboter (schwebt, fährt direkt)
+const bot={x:BASE.x,y:BASE.y,vx:0,vy:0,face:-Math.PI/2,bat:100,stash:0,cap:40,ore:0,bob:0};
+// ---------------- Upgrades: je ein Vertreter pro Sorte
+const UP={
+  reach:{lvl:0,cost:l=>12+l*8,name:'Reichweite',apply:()=>{ARM.reach=82+UP.reach.lvl*22;}},
+  bolt:{lvl:0,cost:l=>l?9999:25,name:'Kettenblitz (20 %, 2 Sprünge)',apply:()=>{}},
+  sweep:{lvl:0,cost:l=>l?9999:25,name:'Kehrbesen-Roboter',apply:()=>{}}
+};
+function buy(k){ const u=UP[k]; const c=u.cost(u.lvl); if(bot.ore<c){say('Zu wenig Brocken.');return;} bot.ore-=c; u.lvl++; u.apply(); say(`${u.name} gekauft.`); }
+function atBase(){ return Math.hypot(bot.x-BASE.x,bot.y-BASE.y)<BASE.r; }
+addEventListener('keydown',e=>{ if(!atBase())return; if(e.key==='1')buy('reach'); if(e.key==='2')buy('bolt'); if(e.key==='3')buy('sweep'); });
+const cam={x:0,y:0};
+const keys={}; addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;}); addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+const mouse={x:0,y:0};
+function scale(){return P.zoom/10;}
+cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mouse.x=(e.clientX-r.left)*CW/r.width/scale()+cam.x;mouse.y=(e.clientY-r.top)*CH/r.height/scale()+cam.y;});
+cv.addEventListener('mousedown',e=>e.preventDefault());
+cv.addEventListener('dragstart',e=>e.preventDefault());
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+
+function blockedAt(x,y){ for(const L of lumps)for(const p of L.parts){ if(Math.hypot(x-p.x,y-p.y)<p.r+14) return true; } return false; }
+function updateBot(){
+  let dx=(keys.d?1:0)-(keys.a?1:0), dy=(keys.s?1:0)-(keys.w?1:0);
+  const l=Math.hypot(dx,dy); if(l>0){dx/=l;dy/=l;}
+  bot.vx+=dx*0.16; bot.vy+=dy*0.16; bot.vx*=0.9; bot.vy*=0.9;
+  const sp=Math.hypot(bot.vx,bot.vy); if(sp>2.2){bot.vx*=2.2/sp;bot.vy*=2.2/sp;}
+  // an Klumpen entlanggleiten: x und y getrennt
+  if(!blockedAt(bot.x+bot.vx,bot.y)) bot.x+=bot.vx; else bot.vx*=-0.2;
+  if(!blockedAt(bot.x,bot.y+bot.vy)) bot.y+=bot.vy; else bot.vy*=-0.2;
+  bot.x=Math.max(30,Math.min(WW-30,bot.x)); bot.y=Math.max(30,Math.min(WH-30,bot.y));
+  if(sp>0.3) bot.face=Math.atan2(bot.vy,bot.vx);
+  bot.bob+=0.08;
+  if(Math.hypot(bot.x-BASE.x,bot.y-BASE.y)<BASE.r&&sp<0.4){
+    if(bot.stash>0){bot.ore+=bot.stash;say(`Abgeladen: ${bot.stash} Brocken.`);bot.stash=0;}
+    if(bot.bat<100)bot.bat=Math.min(100,bot.bat+0.8);
+  }
+  if(bot.stash<bot.cap) for(let i=chunks.length-1;i>=0;i--){const c=chunks[i]; if(c.rest&&Math.hypot(c.x-bot.x,c.y-bot.y)<26){chunks.splice(i,1);bot.stash++; if(bot.stash>=bot.cap)say('Stauraum voll. Zurück zur Basis.');}}
+  // Kamera folgt weich
+  const vw=CW/scale(), vh=CH/scale();
+  const tx=Math.max(0,Math.min(WW-vw,bot.x-vw/2)), ty=Math.max(0,Math.min(WH-vh,bot.y-vh/2));
+  cam.x+=(tx-cam.x)*0.08; cam.y+=(ty-cam.y)*0.08;
+}
+
+// ---------------- Arm (Turm oben, 360°) – Hover: arbeitet, sobald ein Teil in Reichweite dem Zeiger am nächsten ist
+const ARM={L1:46,L2:44,reach:82,pick:40};
+const arm={tip:{x:0,y:0,z:0},target:null,ok:false,beat:-1,working:false};
+let hitstop=0, shake=0; const fx=[];
+function pickTarget(){
+  // Teil, das dem Zeiger am nächsten ist (Bildschirmlage inkl. Höhe), innerhalb "pick" um den Zeiger
+  let best=null,bd=1e9;
+  for(const L of lumps)for(const p of L.parts){ const sy=p.y-p.r*Z; const d=Math.max(0,Math.hypot(mouse.x-p.x,mouse.y-sy)-p.r); if(d<ARM.pick&&d<bd){bd=d;best=p;} }
+  return best;
+}
+function updateArm(){
+  const t=pickTarget(); arm.target=t;
+  arm.ok = !!t && Math.hypot(t.x-bot.x,t.y-bot.y)<=ARM.reach+t.r*0.5;
+  const rest={x:bot.x+Math.cos(bot.face)*40,y:bot.y+Math.sin(bot.face)*40,z:16};
+  arm.working = arm.ok && bot.bat>0;
+  if(arm.working){
+    arm.beat++; const ph=(arm.beat%P.beat)/P.beat; let goal;
+    if(ph<0.6){const k=ph/0.6; goal={x:t.x+(bot.x-t.x)*0.35*k,y:t.y+(bot.y-t.y)*0.35*k,z:8+24*k};}
+    else if(ph<0.72){goal={x:t.x,y:t.y,z:t.r*0.6}; if(arm.beat%P.beat===Math.round(P.beat*0.62)) strike(t);}
+    else goal={x:t.x,y:t.y,z:t.r*0.6};
+    const k=ph<0.6?0.25:0.7; arm.tip.x+=(goal.x-arm.tip.x)*k; arm.tip.y+=(goal.y-arm.tip.y)*k; arm.tip.z+=(goal.z-arm.tip.z)*k;
+  } else {
+    arm.beat=-1;
+    // zeigt Richtung Zeiger, wenn etwas da ist, sonst Ruhe
+    let goal=rest;
+    if(t){ const dx=t.x-bot.x,dy=t.y-bot.y,d=Math.hypot(dx,dy); const r=Math.min(d,ARM.reach); goal={x:bot.x+dx/d*r,y:bot.y+dy/d*r,z:18}; }
+    arm.tip.x+=(goal.x-arm.tip.x)*0.15; arm.tip.y+=(goal.y-arm.tip.y)*0.15; arm.tip.z+=(goal.z-arm.tip.z)*0.15;
+    if(t&&bot.bat<=0&&frame%90===0) say('Akku leer. Zur Basis.');
+  }
+}
+function strike(t){
+  bot.bat=Math.max(0,bot.bat-1);
+  const R=P.rad; let broke=0, clank=false;
+  for(const L of lumps){
+    for(let i=L.parts.length-1;i>=0;i--){
+      const p=L.parts[i]; const d=Math.hypot(p.x-t.x,p.y-t.y); if(d>R+p.r*0.3) continue;
+      const fall=1-Math.min(1,d/(R+p.r*0.3));
+      const chip=(P.pow-p.bind)*fall;
+      if(chip<=0){clank=true; continue;}
+      const loss=chip*2.2; p.r-=loss; broke+=loss;
+      p.debris=(p.debris||0)+loss; const n=Math.floor(p.debris/5); p.debris-=n*5;
+      for(let k=0;k<n;k++){ const a=Math.atan2(p.y-t.y,p.x-t.x)+rnd(-0.9,0.9); const sp=rnd(1.5,4);
+        chunks.push({x:p.x+Math.cos(a)*p.r*0.5,y:p.y+Math.sin(a)*p.r*0.5,z:p.r*0.5,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*0.8,vz:rnd(2,4),r:rnd(3,5.5),rest:false,shade:p.shade}); }
+      if(p.r<9){ L.parts.splice(i,1); for(let k=0;k<2;k++){const a=Math.random()*6.28;chunks.push({x:p.x,y:p.y,z:6,vx:Math.cos(a)*2,vy:Math.sin(a)*1.6,vz:3,r:rnd(3,5),rest:false,shade:p.shade});} }
+    }
+  }
+  if(broke>0){hitstop=P.stop;shake=Math.min(6,broke*0.8); if(UP.bolt.lvl>0&&Math.random()<0.2) chain(t,2);}
+  else if(clank){shake=1.5; for(let k=0;k<5;k++)fx.push({x:t.x,y:t.y-t.r*Z,vx:rnd(-2,2),vy:rnd(-3,-1),l:12,c:'#ffe9a8'}); if(frame%30<2)say('Zu hart für dieses Werkzeug.');}
+  for(let k=0;k<(broke>0?8:2);k++)fx.push({x:t.x+rnd(-8,8),y:t.y-t.r*Z*0.5,vx:rnd(-1,1),vy:rnd(-1.5,-0.3),l:rnd(18,30),c:'rgba(150,120,90,.5)'});
+}
+// ---------------- Proc: Kettenblitz springt auf Nachbarteile
+const bolts=[];
+function chain(from,left){
+  if(left<=0) return;
+  let best=null,bd=1e9;
+  for(const L of lumps)for(const p of L.parts){ if(p===from) continue; const d=Math.hypot(p.x-from.x,p.y-from.y); if(d<70&&d<bd&&!p.zapped){bd=d;best=p;} }
+  if(!best) return;
+  best.zapped=true; setTimeout(()=>{best.zapped=false;},400);
+  bolts.push({a:from,b:best,l:14});
+  const chip=Math.max(0,(P.pow+1-best.bind))*0.9; // etwas stärker als der Schlag, damit man es sieht
+  if(chip>0){ const loss=chip*2.2; best.r-=loss; best.debris=(best.debris||0)+loss; const n=Math.floor(best.debris/5); best.debris-=n*5;
+    for(let k=0;k<n;k++){const a=Math.random()*6.28;chunks.push({x:best.x,y:best.y,z:best.r*0.5,vx:Math.cos(a)*2.5,vy:Math.sin(a)*2,vz:rnd(2,4),r:rnd(3,5.5),rest:false,shade:best.shade});}
+    if(best.r<9){ for(const L of lumps){const i=L.parts.indexOf(best); if(i>=0)L.parts.splice(i,1);} } }
+  for(let k=0;k<4;k++)fx.push({x:best.x,y:best.y-best.r*Z,vx:rnd(-1.5,1.5),vy:rnd(-2,-0.5),l:10,c:'#bfe6ff'});
+  setTimeout(()=>chain(best,left-1),70);
+}
+// ---------------- Werkzeug: Kehrbesen-Roboter, fährt alle 2 s kurz raus und sammelt
+const sweeper={x:0,y:0,state:'dock',t:0,plan:[],carry:0,timer:0};
+function updateSweeper(){
+  if(UP.sweep.lvl===0) return;
+  if(sweeper.state==='dock'){
+    sweeper.x+=(bot.x-14-sweeper.x)*0.3; sweeper.y+=(bot.y+8-sweeper.y)*0.3;
+    if(++sweeper.timer>120&&bot.stash<bot.cap){
+      const near=chunks.filter(c=>c.rest&&Math.hypot(c.x-bot.x,c.y-bot.y)<110).sort((a,b)=>Math.hypot(a.x-bot.x,a.y-bot.y)-Math.hypot(b.x-bot.x,b.y-bot.y)).slice(0,6);
+      if(near.length){sweeper.plan=near;sweeper.state='out';sweeper.timer=0;}
+      else sweeper.timer=60;
+    }
+  } else if(sweeper.state==='out'){
+    const c=sweeper.plan[0];
+    if(!c||!chunks.includes(c)){sweeper.plan.shift(); if(!sweeper.plan.length)sweeper.state='back'; return;}
+    const dx=c.x-sweeper.x,dy=c.y-sweeper.y,d=Math.hypot(dx,dy);
+    if(d<6){chunks.splice(chunks.indexOf(c),1);sweeper.carry++;sweeper.plan.shift(); if(!sweeper.plan.length)sweeper.state='back';}
+    else {sweeper.x+=dx/d*3.2;sweeper.y+=dy/d*3.2;}
+  } else if(sweeper.state==='back'){
+    const dx=bot.x-sweeper.x,dy=bot.y-sweeper.y,d=Math.hypot(dx,dy);
+    if(d<18){bot.stash=Math.min(bot.cap,bot.stash+sweeper.carry);sweeper.carry=0;sweeper.state='dock';}
+    else {sweeper.x+=dx/d*3.2;sweeper.y+=dy/d*3.2;}
+  }
+}
+function drawSweeper(){
+  if(UP.sweep.lvl===0) return;
+  shadow(sweeper.x,sweeper.y,7,2);
+  ctx.fillStyle='#8e8578'; ctx.beginPath(); ctx.ellipse(sweeper.x,sweeper.y-2,7,4.5,0,0,7); ctx.fill();
+  ctx.fillStyle='#c9c2b4'; ctx.beginPath(); ctx.ellipse(sweeper.x,sweeper.y-4,6,4,0,0,7); ctx.fill();
+  // Bürste vorn, dreht
+  ctx.strokeStyle='#5a4a36'; ctx.lineWidth=1; for(let i=0;i<5;i++){const a=frame*0.4+i*1.26; ctx.beginPath(); ctx.moveTo(sweeper.x+Math.cos(a)*5,sweeper.y+1); ctx.lineTo(sweeper.x+Math.cos(a)*8,sweeper.y+3); ctx.stroke();}
+  if(sweeper.carry>0){ctx.fillStyle='#8a6a48';ctx.beginPath();ctx.ellipse(sweeper.x,sweeper.y-7,3+sweeper.carry*0.4,2.5,0,0,7);ctx.fill();}
+}
+function updateChunks(){
+  for(const c of chunks){ if(c.rest) continue; c.x+=c.vx;c.y+=c.vy;c.z+=c.vz;c.vz-=0.28; c.vx*=0.98;c.vy*=0.98;
+    if(c.z<=0){c.z=0; if(c.vz<-1.2){c.vz*=-0.35;c.vx*=0.6;c.vy*=0.6;} else {c.rest=true;c.vz=0;} } }
+  for(let i=fx.length-1;i>=0;i--){const p=fx[i];p.x+=p.vx;p.y+=p.vy;if(--p.l<=0)fx.splice(i,1);}
+}
+
+// ---------------- Zeichnen
+function ground(){
+  ctx.fillStyle='#271f16'; ctx.fillRect(cam.x-50,cam.y-50,CW/scale()+100,CH/scale()+100);
+  ctx.strokeStyle='rgba(255,230,190,.045)'; ctx.lineWidth=0.5;
+  const x0=Math.floor(cam.x/40)*40, y0=Math.floor(cam.y/40)*40;
+  for(let x=x0;x<cam.x+CW/scale()+40;x+=40){ctx.beginPath();ctx.moveTo(x,cam.y-50);ctx.lineTo(x,cam.y+CH/scale()+50);ctx.stroke();}
+  for(let y=y0;y<cam.y+CH/scale()+40;y+=40){ctx.beginPath();ctx.moveTo(cam.x-50,y);ctx.lineTo(cam.x+CW/scale()+50,y);ctx.stroke();}
+  ctx.strokeStyle='#3a3126'; ctx.lineWidth=3; ctx.strokeRect(0,0,WW,WH);
+  ctx.fillStyle='#3a3126'; ctx.beginPath(); ctx.ellipse(BASE.x,BASE.y,BASE.r,BASE.r*0.7,0,0,7); ctx.fill();
+  ctx.strokeStyle='#8a7355'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.ellipse(BASE.x,BASE.y,BASE.r,BASE.r*0.7,0,0,7); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#8a7d68'; ctx.font='9px Georgia'; ctx.fillText('Basis', BASE.x-11, BASE.y+3);
+}
+function shadow(x,y,r,z){ ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x+z*0.15,y+2,r,r*0.6,0,0,7); ctx.fill(); }
+function sphere(p,hi){
+  const sy=p.y-p.r*Z; const base=p.core? [110,88,70] : [150,105,70]; const s=p.shade;
+  const g=ctx.createRadialGradient(p.x-p.r*0.35,sy-p.r*0.4,p.r*0.1,p.x,sy,p.r*1.05);
+  g.addColorStop(0,`rgb(${base[0]+45+s},${base[1]+40+s},${base[2]+30+s})`); g.addColorStop(0.55,`rgb(${base[0]+s},${base[1]+s},${base[2]+s})`); g.addColorStop(1,`rgb(${base[0]-55+s},${base[1]-45+s},${base[2]-35+s})`);
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(p.x,sy,p.r,p.r*0.92,0,0,7); ctx.fill();
+  // etwas Textur, damit Lehm nicht wie Plastik wirkt
+  ctx.strokeStyle='rgba(0,0,0,.08)'; ctx.lineWidth=0.6; ctx.beginPath(); ctx.ellipse(p.x+p.r*0.15,sy+p.r*0.2,p.r*0.5,p.r*0.3,0.4,0,7); ctx.stroke();
+  if(p.core){ctx.strokeStyle='rgba(60,40,30,.6)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(p.x,sy,p.r*0.6,p.r*0.5,0,0,7);ctx.stroke();}
+  if(hi){ctx.strokeStyle=arm.ok?'rgba(255,240,200,.9)':'rgba(255,140,100,.7)';ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(p.x,sy,p.r+2,p.r*0.92+2,0,0,7);ctx.stroke();}
+}
+function drawBot(){
+  const {x,y}=bot; const h=10+Math.sin(bot.bob)*1.5;   // schwebt
+  shadow(x,y,24,h);
+  // Unterseite, Plattform, Aufbau
+  ctx.fillStyle='#5a5148'; ctx.beginPath(); ctx.ellipse(x,y-h*Z+3,22,14,0,0,7); ctx.fill();
+  ctx.fillStyle='#b8ae9c'; ctx.beginPath(); ctx.ellipse(x,y-h*Z,22,14,0,0,7); ctx.fill();
+  ctx.fillStyle='#8e8578'; ctx.beginPath(); ctx.ellipse(x,y-(h+10)*Z,13,9,0,0,7); ctx.fill();
+  ctx.fillStyle='#c9c2b4'; ctx.beginPath(); ctx.ellipse(x,y-(h+14)*Z,13,9,0,0,7); ctx.fill();
+  // Auge in Fahrtrichtung
+  ctx.fillStyle='#6fb4e0'; ctx.fillRect(x+Math.cos(bot.face)*9-1.5,y-(h+14)*Z+Math.sin(bot.face)*5-1.5,3,3);
+  // Turm-Arm: Drehpunkt oben auf dem Aufbau
+  const pv={x,y:y-(h+16)*Z}; const tip=arm.tip;
+  const dx=tip.x-pv.x, dy=(tip.y-tip.z*Z)-pv.y; const d=Math.min(ARM.L1+ARM.L2-1,Math.hypot(dx,dy));
+  const ang=Math.atan2(dy,dx); const q=Math.acos(Math.max(-1,Math.min(1,(ARM.L1*ARM.L1+d*d-ARM.L2*ARM.L2)/(2*ARM.L1*d))));
+  const ex=pv.x+Math.cos(ang-q)*ARM.L1, ey=pv.y+Math.sin(ang-q)*ARM.L1;
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle='#3a3128'; ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(pv.x,pv.y); ctx.lineTo(ex,ey); ctx.lineTo(tip.x,tip.y-tip.z*Z); ctx.stroke();
+  ctx.strokeStyle='#a39c8e'; ctx.lineWidth=4.5; ctx.beginPath(); ctx.moveTo(pv.x,pv.y); ctx.lineTo(ex,ey); ctx.lineTo(tip.x,tip.y-tip.z*Z); ctx.stroke();
+  ctx.fillStyle='#6f6a60'; ctx.beginPath(); ctx.arc(ex,ey,3.5,0,7); ctx.fill(); ctx.beginPath(); ctx.arc(pv.x,pv.y,4,0,7); ctx.fill();
+  const ta=Math.atan2(tip.y-y,tip.x-x); const tz=tip.y-tip.z*Z;
+  ctx.fillStyle='#e0dacc'; ctx.beginPath(); ctx.moveTo(tip.x-Math.cos(ta)*5-Math.sin(ta)*3,tz-Math.sin(ta)*5*0.6+Math.cos(ta)*3); ctx.lineTo(tip.x+Math.cos(ta)*7,tz+Math.sin(ta)*7*0.6); ctx.lineTo(tip.x-Math.cos(ta)*5+Math.sin(ta)*3,tz-Math.sin(ta)*5*0.6-Math.cos(ta)*3); ctx.closePath(); ctx.fill();
+  shadow(tip.x,tip.y,4,tip.z);
+  // Reichweite schwach
+  ctx.strokeStyle='rgba(255,240,200,.06)'; ctx.lineWidth=0.8; ctx.beginPath(); ctx.ellipse(x,y,ARM.reach,ARM.reach*0.75,0,0,7); ctx.stroke();
+}
+let frame=0;
+function loop(){
+  frame++;
+  if(hitstop>0)hitstop--; else {updateBot();updateArm();updateSweeper();}
+  updateChunks(); if(sayT>0&&--sayT===0)sayEl.textContent='';
+  const s=scale();
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,CW,CH);
+  ctx.setTransform(s,0,0,s,-cam.x*s+(shake>0?rnd(-shake,shake):0),-cam.y*s+(shake>0?rnd(-shake,shake):0));
+  if(shake>0){shake*=0.8;if(shake<.2)shake=0;}
+  ground();
+  for(const L of lumps)for(const p of L.parts)shadow(p.x,p.y,p.r*0.95,0);
+  for(const c of chunks)shadow(c.x,c.y,c.r,c.z);
+  const items=[];
+  for(const L of lumps)for(const p of L.parts)items.push({y:p.y,f:()=>sphere(p,p===arm.target)});
+  for(const c of chunks)items.push({y:c.y,f:()=>{ctx.fillStyle=`rgb(${150+c.shade+20|0},${105+c.shade+15|0},${70+c.shade+10|0})`;ctx.beginPath();ctx.ellipse(c.x,c.y-c.z*Z-c.r*0.3,c.r,c.r*0.8,0,0,7);ctx.fill();}});
+  items.push({y:bot.y,f:drawBot}); items.push({y:sweeper.y,f:drawSweeper});
+  items.sort((a,b)=>a.y-b.y); for(const it of items)it.f();
+  for(const p of fx){ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,1.5,1.5);}
+  for(let i=bolts.length-1;i>=0;i--){const b=bolts[i]; const ax=b.a.x,ay=b.a.y-b.a.r*Z,bx=b.b.x,by=b.b.y-b.b.r*Z;
+    ctx.strokeStyle=`rgba(200,235,255,${b.l/14})`; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(ax,ay);
+    for(let k=1;k<5;k++){const f=k/5;ctx.lineTo(ax+(bx-ax)*f+rnd(-5,5),ay+(by-ay)*f+rnd(-5,5));} ctx.lineTo(bx,by); ctx.stroke();
+    if(--b.l<=0)bolts.splice(i,1);}
+  // Zeiger
+  ctx.strokeStyle='rgba(255,240,200,.35)'; ctx.lineWidth=0.8; ctx.beginPath(); ctx.arc(mouse.x,mouse.y,4,0,7); ctx.stroke();
+  document.getElementById('shop').textContent = atBase()
+    ? `1: Reichweite ${UP.reach.cost(UP.reach.lvl)} (Stufe ${UP.reach.lvl})  ·  2: Kettenblitz ${UP.bolt.lvl?'✓':UP.bolt.cost(0)}  ·  3: Kehrbesen ${UP.sweep.lvl?'✓':UP.sweep.cost(0)}`
+    : `Reichweite ${UP.reach.lvl} · Blitz ${UP.bolt.lvl?'✓':'–'} · Besen ${UP.sweep.lvl?'✓':'–'}`;
+  document.getElementById('bat').textContent=Math.ceil(bot.bat); document.getElementById('st').textContent=bot.stash; document.getElementById('cap').textContent=bot.cap; document.getElementById('ore').textContent=bot.ore;
+  requestAnimationFrame(loop);
+}
+say('Brocken abliefern, dann an der Basis mit 1 / 2 / 3 kaufen.');
+loop();
+</script>
+</body>
+</html>
