@@ -2,19 +2,20 @@
 
 ## NOW
 
-- Planung abschließen: Steuerungsmodell "Stelle zielen" und Klumpenmodell festziehen (siehe GAME_DESIGN.md).
+- Prototyp 5 ist der erste tragende Stand (Baseline). Änderungen daran nur noch mit Vergleich gegen diese Baseline.
 
 ## NEXT
 
-- HTML-Gefühlstest: Draufsicht, fünf Klumpen, ein Werkzeug, Akku, Einsammeln. Testfrage: Kaputtmachen fühlt sich nach etwas an, Stelle macht Unterschied.
-- Tobias spielen lassen, Reaktion in PLAYTEST.md.
+- Kleinster nächster Schritt: das erste Upgrade, das das Spiel verändert (Reichweite oder zweites Werkzeug), an der Basis kaufbar. Testfrage: Verändert ein Upgrade, wie man spielt, oder nur, wie schnell?
+- Danach: Feld größer, Klumpen versperren wirklich, Nebel/Sensor.
+- Tuning offen: Schläge pro Klumpen, Brockenmenge, Stauraum.
 
 ## LATER
 
-- Kerne abbaubar, Nachwachsen, Feld leer räumen.
-- Nebel und Sensoren.
-- Weitere Werkzeuge (Bruchform), Stauraum, Sammler.
-- Risse/Bruchstellen.
-- Feld als Schacht-/Gangsystem (Phase 2).
-- Umzug nach Godot.
-- Erst nach erfolgreichem Kernloop: Prestige, Save-System, Content, Technik-Ausbau.
+- Kerne abbaubar (Eis/Säure), Nachwachsen, Feld leer räumen.
+- Elemente als Bindungs-Veränderer (Feuer, Eis, Blitz, Säure, Explosion).
+- Automatik-Bogen: Arbeitsbereich wächst, Zeigen wird optional.
+- Risse/Bruchstellen nur, wenn ein Werkzeug sie braucht.
+- Story-Ton (Roboter wird hoffnungsvoller).
+- Umzug nach Godot, wenn Optik und 3D-Bruch gebraucht werden.
+- Erst nach stabilem Loop: Prestige, Save-System, Content.
