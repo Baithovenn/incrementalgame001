@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Buddeln – Prototyp 1</title>
+<style>
+  html,body{margin:0;background:#1a1410;color:#d9cdb8;font:14px/1.4 Georgia,serif;overflow:hidden}
+  #wrap{display:flex;flex-direction:column;align-items:center;height:100vh}
+  canvas{image-rendering:pixelated;background:#0e0b08;max-width:100vw;max-height:calc(100vh - 42px)}
+  #hud{width:1040px;max-width:100vw;box-sizing:border-box;display:flex;gap:28px;align-items:baseline;padding:8px 12px;height:42px}
+  #hud b{color:#f0e2c4;font-weight:normal}
+  #hud .dim{color:#8a7d68}
+  #say{margin-left:auto;font-style:italic;color:#a89c86}
+  button{background:#3a2e22;color:#f0e2c4;border:1px solid #6b5843;font:inherit;padding:2px 10px;cursor:pointer}
+  button:disabled{opacity:.4;cursor:default}
+</style>
+</head>
+<body>
+<div id="wrap">
+<canvas id="c" width="1040" height="600"></canvas>
+<div id="hud">
+  <span>Sack <b id="sack">0</b><span class="dim"> / </span><b id="cap">60</b></span>
+  <span>Energie <b id="en">100</b></span>
+  <span>Erz <b id="ore">0</b></span>
+  <span><button id="up">Größerer Sack (20 Erz)</button></span>
+  <span class="dim">WASD gehen · W an der Wand klettern · Maus zielen · linke Taste halten: schaufeln · am Sieb E</span>
+  <span id="say"></span>
+</div>
+</div>
+<script>
+// ------------------------------------------------------------ Welt
+const CS = 4;                    // Zellgröße in Pixel
+const W = 260, H = 150;          // Zellen
+const EMPTY=0, LOOSE=1, PACKED=2, STONE=3, ORE=4;
+const grid = new Uint8Array(W*H);
+const shade = new Uint8Array(W*H);   // Farbvariation pro Zelle
+const idx = (x,y)=>y*W+x;
+const inB = (x,y)=>x>=0&&x<W&&y>=0&&y<H;
+const solid = t => t!==EMPTY;
+
+// Basis: Kammer links unten, Sieb am Boden
+const BASE = {x0:4, x1:34, y0:112, y1:141};
+const SIEVE = {x0:8, x1:18, y:BASE.y1-1};
+
+let seed=7; const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff};
+for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+  let t=PACKED;
+  if(x<2||x>=W-2||y<2||y>=H-2) t=STONE;
+  else if(x>=BASE.x0&&x<=BASE.x1&&y>=BASE.y0&&y<=BASE.y1) t=EMPTY;
+  else {
+    const d = Math.hypot(x-SIEVE.x0, y-SIEVE.y);
+    if(rnd()<0.004+d*0.00012) t=ORE;
+    else if(rnd()<0.015) t=STONE;
+  }
+  grid[idx(x,y)]=t; shade[idx(x,y)]=(rnd()*40)|0;
+}
+// Boden der Kammer ist Stein, damit die Basis nicht wegbricht
+for(let x=BASE.x0-1;x<=BASE.x1+1;x++) grid[idx(x,BASE.y1+1)]=STONE;
+
+// Wert einer Zelle: weiter weg vom Sieb = ergiebiger
+function richness(x,y){ const d=Math.hypot(x-SIEVE.x0,y-SIEVE.y); return 0.1+d/180; }
+
+// ------------------------------------------------------------ Physik
+let frame=0;
+function physics(){
+  // Rieseln: lose Erde fällt, sonst diagonal
+  const dir = (frame&1)?1:-1;
+  for(let y=H-2;y>=1;y--){
+    for(let i=0;i<W;i++){
+      const x = dir>0? i : W-1-i;
+      const k=idx(x,y); const t=grid[k];
+      if(t===LOOSE){
+        if(grid[idx(x,y+1)]===EMPTY){ grid[idx(x,y+1)]=LOOSE; grid[k]=EMPTY; continue; }
+        const a = x+dir, b = x-dir;
+        if(inB(a,y+1)&&grid[idx(a,y+1)]===EMPTY&&grid[idx(a,y)]===EMPTY){ grid[idx(a,y+1)]=LOOSE; grid[k]=EMPTY; }
+        else if(inB(b,y+1)&&grid[idx(b,y+1)]===EMPTY&&grid[idx(b,y)]===EMPTY){ grid[idx(b,y+1)]=LOOSE; grid[k]=EMPTY; }
+      } else if(t===PACKED||t===ORE){
+        // Festgepackte Erde ohne Halt unter sich bröckelt – je weniger Nachbarn, desto schneller
+        if(grid[idx(x,y+1)]===EMPTY){
+          let n=0;
+          if(solid(grid[idx(x-1,y)])) n++;
+          if(solid(grid[idx(x+1,y)])) n++;
+          if(solid(grid[idx(x-1,y+1)])) n++;
+          if(solid(grid[idx(x+1,y+1)])) n++;
+          const p = [0.06,0.02,0.006,0.0015,0.0004][n];
+          if(Math.random()<p){ grid[k]=LOOSE; if(t===ORE) oreCells.add(k); }
+        }
+      }
+    }
+  }
+}
+const oreCells = new Set(); // lose Erzzellen behalten ihren Wert
+
+// ------------------------------------------------------------ Roboter
+const bot = { x:BASE.x0+14, y:BASE.y1-7, w:4, h:7, vy:0, energy:100, sack:0, cap:60, sackValue:0, ore:0, buried:false, face:1 };
+const keys={}; let mouse={x:0,y:0,down:false};
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true; if(e.key.toLowerCase()==='e') sieve();});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+const cv=document.getElementById('c'); const ctx=cv.getContext('2d');
+cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mouse.x=(e.clientX-r.left)*cv.width/r.width/CS;mouse.y=(e.clientY-r.top)*cv.height/r.height/CS;});
+cv.addEventListener('mousedown',e=>{if(e.button===0)mouse.down=true;});
+addEventListener('mouseup',()=>mouse.down=false);
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+
+function bodyCells(x,y){ const out=[]; for(let j=0;j<bot.h;j++)for(let i=0;i<bot.w;i++) out.push(idx(x+i,y+j)); return out; }
+function blocked(x,y){ // Stein oder Festerde blockiert; lose Erde nicht (wird aufgenommen)
+  for(let j=0;j<bot.h;j++)for(let i=0;i<bot.w;i++){ const t=grid[idx(x+i,y+j)]; if(t===STONE||t===PACKED||t===ORE) return true; }
+  return false;
+}
+function touchingWall(x,y){
+  for(let j=0;j<bot.h;j++){ if(solid(grid[idx(x-1,y+j)])||solid(grid[idx(x+bot.w,y+j)])) return true; }
+  return false;
+}
+function absorbLoose(){ // lose Erde im Körper landet im Sack – oder wird verdrängt, wenn voll
+  let n=0;
+  for(const k of bodyCells(bot.x,bot.y)){
+    if(grid[k]===LOOSE){
+      if(bot.sack<bot.cap){ take(k); grid[k]=EMPTY; n++; }
+    }
+  }
+  return n;
+}
+function take(k){ bot.sack++; const x=k%W,y=(k/W)|0; bot.sackValue += oreCells.has(k)? 3 : richness(x,y); oreCells.delete(k); }
+function buriedRatio(){ let s=0; for(const k of bodyCells(bot.x,bot.y)) if(solid(grid[k])) s++; return s/(bot.w*bot.h); }
+
+let hitstop=0, shake=0, scoopTimer=0, swing=0;
+const parts=[];
+function scoop(){
+  const cx=bot.x+bot.w/2, cy=bot.y+bot.h/2;
+  const ang=Math.atan2(mouse.y-cy, mouse.x-cx);
+  const R=7, ARC=0.65;
+  let got=0, moved=0;
+  const overflow=[];
+  for(let y=Math.floor(cy-R);y<=cy+R;y++)for(let x=Math.floor(cx-R);x<=cx+R;x++){
+    if(!inB(x,y)) continue;
+    const dx=x-cx, dy=y-cy, d=Math.hypot(dx,dy);
+    if(d>R||d<1.5) continue;
+    let da=Math.atan2(dy,dx)-ang; da=Math.atan2(Math.sin(da),Math.cos(da));
+    if(Math.abs(da)>ARC) continue;
+    const k=idx(x,y); const t=grid[k];
+    if(t===STONE||t===EMPTY) continue;
+    if(bot.sack<bot.cap){ take(k); got++; } else { overflow.push(k); }
+    grid[k]=EMPTY;
+    parts.push({x:x*CS+2,y:y*CS+2,vx:-Math.cos(ang)*(2+Math.random()*3)+(Math.random()-.5)*2,vy:-Math.sin(ang)*(2+Math.random()*3)-1.5,l:20+Math.random()*15,c:t===ORE?'#e8c15a':'#7a5a3a'});
+  }
+  // Voller Sack: Erde wird nach hinten geworfen, damit man nie feststeckt
+  for(const k of overflow){
+    let placed=false;
+    for(let r=2;r<12&&!placed;r++)for(let s=-3;s<=3&&!placed;s++){
+      const a=ang+Math.PI+s*0.25; const px=Math.round(cx+Math.cos(a)*r), py=Math.round(cy+Math.sin(a)*r);
+      if(inB(px,py)&&grid[idx(px,py)]===EMPTY&&!(px>=bot.x&&px<bot.x+bot.w&&py>=bot.y&&py<bot.y+bot.h)){ grid[idx(px,py)]=LOOSE; placed=true; }
+    }
+    moved++;
+  }
+  if(got+moved>0){ hitstop=2; shake=Math.min(4,(got+moved)/6); }
+  swing=1; bot.face = Math.cos(ang)>=0?1:-1;
+}
+
+function sieve(){
+  const onSieve = bot.x+bot.w>SIEVE.x0 && bot.x<SIEVE.x1 && bot.y+bot.h>=SIEVE.y-1;
+  if(!onSieve||bot.sack===0) return;
+  const gain=Math.round(bot.sackValue);
+  bot.ore+=gain; bot.sack=0; bot.sackValue=0; bot.energy=100;
+  const lines=[
+    'Erde. Nur Erde. Wie immer.',
+    'Da war etwas drin. Bilde ich mir das ein?',
+    'Weiter draußen ist die Erde anders. Schwerer. Besser.',
+    'Ich habe aufgehört zu zählen, wie oft ich zurückgekommen bin. Das ist ein gutes Zeichen.',
+    'Irgendwo da oben ist ein Ende. Ich glaube das jetzt.'
+  ];
+  say(lines[Math.min(lines.length-1, Math.floor(bot.ore/40))] + `  (+${gain} Erz)`);
+  for(let i=0;i<20;i++) parts.push({x:(SIEVE.x0+Math.random()*10)*CS,y:SIEVE.y*CS,vx:(Math.random()-.5)*2,vy:-2-Math.random()*3,l:30,c:'#e8c15a'});
+}
+const sayEl=document.getElementById('say'); let sayT=0;
+function say(s){ sayEl.textContent=s; sayT=360; }
+
+document.getElementById('up').onclick=()=>{
+  const cost=upCost(); if(bot.ore<cost) return;
+  bot.ore-=cost; bot.cap+=30; say('Größerer Sack. Der Rücken hält das.');
+};
+function upCost(){ return Math.round(20*Math.pow(1.9,(bot.cap-60)/30)); }
+
+function updateBot(){
+  const slow = bot.buried?0.35:1;
+  // seitlich
+  let dx=0; if(keys.a) dx=-1; if(keys.d) dx=1;
+  if(dx!==0 && frame%2===0 || dx!==0 && slow<1 && frame%5===0){
+    if(!blocked(bot.x+dx,bot.y)) bot.x+=dx; else if(!blocked(bot.x+dx,bot.y-1)) {bot.x+=dx;bot.y-=1;} // kleine Stufe
+    bot.face=dx;
+  }
+  // klettern / Schwerkraft
+  if(keys.w && touchingWall(bot.x,bot.y) && (frame%3===0) && !blocked(bot.x,bot.y-1) && (slow===1||frame%9===0)){ bot.y-=1; bot.vy=0; }
+  else if(!keys.w || !touchingWall(bot.x,bot.y)){
+    if(frame%2===0 && !blocked(bot.x,bot.y+1) && bot.y+bot.h<H-2) bot.y+=1;
+  }
+  if(keys.s && frame%2===0 && !blocked(bot.x,bot.y+1)) bot.y+=1;
+  absorbLoose();
+  // verschüttet?
+  bot.buried = buriedRatio()>0.3;
+  if(bot.buried){ bot.energy-=0.13; if(bot.energy<=0){ bot.energy=100; bot.sack=0; bot.sackValue=0; say('Notabschaltung. Der Sack ist leer. Aber ich bin noch da.'); } }
+  // schaufeln
+  if(mouse.down){ scoopTimer++; if(scoopTimer%14===1) scoop(); } else scoopTimer=0;
+}
+
+// ------------------------------------------------------------ Zeichnen
+function drawWorld(){
+  const img = ctx.createImageData(cv.width, cv.height);
+  const d = img.data;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const k=idx(x,y); const t=grid[k]; if(t===EMPTY) continue;
+    const s=shade[k]; let r,g,b;
+    if(t===PACKED){ r=92+s*0.6; g=64+s*0.5; b=40+s*0.3; }
+    else if(t===LOOSE){ r=120+s*0.7; g=88+s*0.6; b=56+s*0.4; }
+    else if(t===STONE){ r=70+s*0.5; g=70+s*0.5; b=72+s*0.5; }
+    else { r=200+s; g=170+s*0.6; b=70; }
+    for(let j=0;j<CS;j++)for(let i=0;i<CS;i++){ const p=((y*CS+j)*cv.width+(x*CS+i))*4; d[p]=r; d[p+1]=g; d[p+2]=b; d[p+3]=255; }
+  }
+  ctx.putImageData(img,0,0);
+}
+function drawBot(){
+  const px=bot.x*CS, py=bot.y*CS, w=bot.w*CS, h=bot.h*CS;
+  ctx.fillStyle='#c9c2b4'; ctx.fillRect(px,py+6,w,h-6);
+  ctx.fillStyle='#a39c8e'; ctx.fillRect(px+2,py,w-4,8);
+  // Auge / Stimmungs-LED
+  const mood = Math.min(1, bot.ore/200);
+  ctx.fillStyle = bot.buried?'#e04a3a':`rgb(${(90+mood*130)|0},${(120+mood*100)|0},${(200-mood*120)|0})`;
+  ctx.fillRect(px+(bot.face>0?w-6:2),py+2,4,4);
+  // Sack auf dem Rücken, füllt sich sichtbar
+  const bx = bot.face>0? px-6 : px+w+2;
+  ctx.fillStyle='#4a3b2c'; ctx.fillRect(bx,py+8,4,h-10);
+  const f=bot.sack/bot.cap; ctx.fillStyle=f>=1?'#e8c15a':'#8a6a48'; ctx.fillRect(bx,py+8+(h-10)*(1-f),4,(h-10)*f);
+  // Schaufel
+  const cx=px+w/2, cy=py+h/2; const ang=Math.atan2(mouse.y*CS-cy, mouse.x*CS-cx);
+  const len = 18 + swing*10;
+  ctx.strokeStyle='#8a8378'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(ang)*len, cy+Math.sin(ang)*len); ctx.stroke();
+  ctx.fillStyle='#d9d3c6'; ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*len, cy+Math.sin(ang)*len, 5,0,Math.PI*2); ctx.fill();
+  // Zielsektor, schwach
+  if(!mouse.down){ ctx.strokeStyle='rgba(255,240,200,.12)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,7*CS,ang-0.65,ang+0.65); ctx.stroke(); }
+}
+function drawBase(){
+  ctx.fillStyle='#5a4a36'; ctx.fillRect(SIEVE.x0*CS,SIEVE.y*CS,(SIEVE.x1-SIEVE.x0)*CS,CS*1.5);
+  ctx.fillStyle='#8a7355'; for(let i=0;i<10;i++) ctx.fillRect((SIEVE.x0+i)*CS+1,SIEVE.y*CS+1,2,2);
+  ctx.fillStyle='#8a7d68'; ctx.font='11px Georgia'; ctx.fillText('Sieb (E)', SIEVE.x0*CS, SIEVE.y*CS-6);
+}
+
+function loop(){
+  frame++;
+  if(hitstop>0){ hitstop--; }
+  else { physics(); updateBot(); }
+  swing*=0.8; if(sayT>0&&--sayT===0) sayEl.textContent='';
+  // Partikel
+  for(let i=parts.length-1;i>=0;i--){ const p=parts[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.25; if(--p.l<=0) parts.splice(i,1); }
+  ctx.save();
+  if(shake>0){ ctx.translate((Math.random()-.5)*shake*2,(Math.random()-.5)*shake*2); shake*=0.85; if(shake<0.2)shake=0; }
+  ctx.clearRect(-10,-10,cv.width+20,cv.height+20);
+  drawWorld(); drawBase(); drawBot();
+  for(const p of parts){ ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,3,3); }
+  if(bot.buried){ ctx.fillStyle='rgba(120,30,20,.18)'; ctx.fillRect(0,0,cv.width,cv.height); }
+  ctx.restore();
+  // HUD
+  document.getElementById('sack').textContent=bot.sack;
+  document.getElementById('cap').textContent=bot.cap;
+  document.getElementById('en').textContent=Math.ceil(bot.energy);
+  document.getElementById('ore').textContent=bot.ore;
+  const b=document.getElementById('up'); b.textContent=`Größerer Sack (${upCost()} Erz)`; b.disabled=bot.ore<upCost();
+  requestAnimationFrame(loop);
+}
+say('Erde. Überall Erde. Ich fange wohl an.');
+loop();
+</script>
+</body>
+</html>

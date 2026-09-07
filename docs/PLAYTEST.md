@@ -1,24 +1,13 @@
-# Playtest-Notizen
+# Playtest
 
-Nicht theoretisch bewerten, wenn das Spiel beobachtet werden kann.
+## Prototyp 1 (work/prototyp1.html) – 2026-09-07
 
-## Test
+**Hypothese:** Nach oben graben, während Erde runterkommt, ist ohne Gegner und ohne weitere Systeme schon spannend; der Rückweg zum Sieb fühlt sich wie Belohnung an.
 
-**Datum:**  
-**Build / Commit:**  
-**Getestete Hypothese:**  
+**Drin:** feinkörnige Erde mit Rieseln und Bröckeln, Roboter mit WASD und Wandklettern, Schaufel im Kegel Richtung Maus (nimmt direkt in den Sack), Sack mit Kapazität, Sieb, ein Upgrade (Sackgröße), weiches Verschütten (langsam + Energieverlust).
 
-## Beobachtung
+**Nicht drin, absichtlich:** Stützen, Werkzeugupgrades, Materialhärte, Ton.
 
-- Was hat Tobias tatsächlich getan?
-- Wo entstand Neugier / Spannung / Wiederholungsdrang?
-- Wo wurde es mechanisch oder langweilig?
-- Welche Upgrades / Veränderungen waren fühlbar?
-- Was war unverständlich?
+**Reaktion von Tobias:** (offen)
 
-## Konsequenz
-
-- Behalten:
-- Ändern:
-- Verwerfen:
-- Nächster Test:
+**Beobachtungen:** (offen)
