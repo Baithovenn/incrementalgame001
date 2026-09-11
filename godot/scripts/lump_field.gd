@@ -14,30 +14,32 @@ extends Node3D
 ## Freier Hof um die Basis (m).
 @export var base_clear_radius: float = 3.0
 ## Rasterabstand der Klumpen (m); kleiner = dichter.
-@export var lump_spacing: float = 1.5
+@export var lump_spacing: float = 1.1
 ## Zufälliger Versatz der Klumpen im Raster (m).
-@export var lump_jitter: float = 0.35
+@export var lump_jitter: float = 0.3
 ## Teile pro Klumpen.
-@export var parts_min: int = 8
+@export var parts_min: int = 10
 @export var parts_max: int = 16
 ## Radius eines Teils (m).
 @export var part_radius_min: float = 0.22
 @export var part_radius_max: float = 0.42
 ## Wie weit die Teile um die Klumpenmitte streuen (m).
-@export var cluster_radius: float = 0.6
+@export var cluster_radius: float = 0.7
+## Wie hoch sich Teile in der Klumpenmitte stapeln (m).
+@export var dome_height: float = 0.45
 ## Bindung am Hofrand und am Feldrand.
 @export var bind_near: float = 1.0
 @export var bind_far: float = 5.0
 
 const MESH_VARIANTS := 6
 const PALETTE := [
-	Color(0.36, 0.26, 0.17),
-	Color(0.32, 0.23, 0.16),
-	Color(0.39, 0.29, 0.20),
-	Color(0.30, 0.22, 0.17),
-	Color(0.34, 0.27, 0.19),
+	Color(0.30, 0.22, 0.15),
+	Color(0.28, 0.21, 0.15),
+	Color(0.32, 0.24, 0.17),
+	Color(0.29, 0.22, 0.16),
+	Color(0.31, 0.23, 0.16),
 ]
-const CORE_COLOR := Color(0.21, 0.15, 0.10)
+const CORE_COLOR := Color(0.19, 0.14, 0.10)
 
 var _rng := RandomNumberGenerator.new()
 var _meshes: Array[Mesh] = []
@@ -90,8 +92,10 @@ func _spawn_lump(center: Vector3, bind: float) -> void:
 	for i in range(count - 1):
 		var angle := _rng.randf_range(0.0, TAU)
 		var r := cluster_radius * sqrt(_rng.randf())
-		var offset := Vector3(cos(angle) * r, 0.0, sin(angle) * r)
 		var radius := _rng.randf_range(part_radius_min, part_radius_max)
+		# Innen höher gestapelt, außen flach: Teile dürfen auf anderen liegen.
+		var lift := _rng.randf() * dome_height * (1.0 - r / cluster_radius)
+		var offset := Vector3(cos(angle) * r, lift, sin(angle) * r)
 		var part_bind := bind * _rng.randf_range(0.8, 1.2)
 		_spawn_part(lump, offset, radius, part_bind, false)
 
@@ -102,6 +106,9 @@ func _spawn_part(lump: Node3D, offset: Vector3, radius: float, bind: float, is_c
 	part.name = "Core" if is_core else "Part_%d" % lump.get_child_count()
 	part.bind = bind
 	part.is_core = is_core
+	part.collision_layer = 1 | 4  # 1: blockiert Roboter/Brocken, 4: zielbar per Raycast
+	part.collision_mask = 0
+	part.add_to_group("lump_parts")
 	# Teile sitzen etwas im Boden, damit die Traube lehmig aufliegt.
 	part.position = offset + Vector3(0.0, radius * 0.6, 0.0)
 	part.rotation.y = _rng.randf_range(0.0, TAU)
@@ -111,16 +118,16 @@ func _spawn_part(lump: Node3D, offset: Vector3, radius: float, bind: float, is_c
 	mesh.name = "Mesh"
 	mesh.mesh = _meshes[_rng.randi_range(0, MESH_VARIANTS - 1)]
 	# Abgeflacht und leicht ungleich, damit es nicht perlig wirkt.
-	mesh.scale = Vector3(radius * _rng.randf_range(0.95, 1.15), radius * _rng.randf_range(0.65, 0.8), radius * _rng.randf_range(0.95, 1.15))
+	var mesh_scale := Vector3(radius * _rng.randf_range(0.95, 1.15), radius * _rng.randf_range(0.65, 0.8), radius * _rng.randf_range(0.95, 1.15))
 	mesh.material_override = _core_material if is_core else _materials[_rng.randi_range(0, _materials.size() - 1)]
 	part.add_child(mesh)
 
 	var shape := CollisionShape3D.new()
 	shape.name = "CollisionShape3D"
 	var sphere := SphereShape3D.new()
-	sphere.radius = radius * 0.95
 	shape.shape = sphere
 	part.add_child(shape)
+	part.setup(radius, mesh_scale)
 	part_count += 1
 
 

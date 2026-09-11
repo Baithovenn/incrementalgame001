@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://ddcyy3xgnumbr"]
+[gd_scene load_steps=9 format=3 uid="uid://ddcyy3xgnumbr"]
 
 [ext_resource type="Script" path="res://scripts/robot.gd" id="1_robot"]
+[ext_resource type="Script" path="res://scripts/arm.gd" id="2_arm"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_body"]
 height = 0.09
@@ -16,7 +17,27 @@ emission_enabled = true
 emission = Color(0.435, 0.706, 0.878, 1)
 emission_energy_multiplier = 0.6
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_arm"]
+albedo_color = Color(0.64, 0.61, 0.56, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tool"]
+albedo_color = Color(0.88, 0.85, 0.80, 1)
+roughness = 0.4
+
+[sub_resource type="TorusMesh" id="TorusMesh_ring"]
+inner_radius = 0.9
+outer_radius = 1.0
+rings = 32
+ring_segments = 6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ring"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0.94, 0.78, 0.9)
+
 [node name="Robot" type="CharacterBody3D"]
+collision_mask = 1
 script = ExtResource("1_robot")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -36,3 +57,44 @@ material = SubResource("StandardMaterial3D_body")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.055, -0.12)
 size = Vector3(0.05, 0.03, 0.05)
 material = SubResource("StandardMaterial3D_front")
+
+[node name="Mesh_Turret" type="CSGCylinder3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0)
+radius = 0.06
+height = 0.04
+sides = 16
+material = SubResource("StandardMaterial3D_arm")
+
+[node name="Joint_arm_1" type="Node3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+
+[node name="Mesh_arm_1" type="CSGBox3D" parent="Body/Joint_arm_1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.33)
+size = Vector3(0.035, 0.035, 0.66)
+material = SubResource("StandardMaterial3D_arm")
+
+[node name="Joint_arm_2" type="Node3D" parent="Body/Joint_arm_1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.66)
+
+[node name="Mesh_arm_2" type="CSGBox3D" parent="Body/Joint_arm_1/Joint_arm_2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.33)
+size = Vector3(0.028, 0.028, 0.66)
+material = SubResource("StandardMaterial3D_arm")
+
+[node name="Tool_tip" type="Node3D" parent="Body/Joint_arm_1/Joint_arm_2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.66)
+
+[node name="Mesh_tool" type="CSGSphere3D" parent="Body/Joint_arm_1/Joint_arm_2/Tool_tip"]
+radius = 0.035
+radial_segments = 10
+rings = 6
+material = SubResource("StandardMaterial3D_tool")
+
+[node name="Arm" type="Node" parent="."]
+script = ExtResource("2_arm")
+
+[node name="TargetRing" type="MeshInstance3D" parent="Arm"]
+top_level = true
+visible = false
+mesh = SubResource("TorusMesh_ring")
+material_override = SubResource("StandardMaterial3D_ring")

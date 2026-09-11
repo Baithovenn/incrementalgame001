@@ -4,7 +4,8 @@
 [ext_resource type="Script" uid="uid://cnoq38r8fjybu" path="res://scripts/camera_rig.gd" id="2_cam"]
 [ext_resource type="PackedScene" uid="uid://ddcyy3xgnumbr" path="res://scenes/robot.tscn" id="3_robot"]
 [ext_resource type="Shader" uid="uid://1y0cctibigya" path="res://shaders/ground.gdshader" id="4_ground"]
-[ext_resource type="Script" path="res://scripts/lump_field.gd" id="5_field"]
+[ext_resource type="Script" uid="uid://bg1cwyb3621j" path="res://scripts/lump_field.gd" id="5_field"]
+[ext_resource type="Script" path="res://scripts/hud_message.gd" id="6_hud"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -51,7 +52,7 @@ mesh = SubResource("PlaneMesh_ground")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 shape = SubResource("BoxShape3D_ground")
 
-[node name="LumpField" type="Node3D" parent="."]
+[node name="LumpField" type="Node3D" parent="." unique_id=138977732]
 script = ExtResource("5_field")
 
 [node name="Robot" parent="." unique_id=1149479146 instance=ExtResource("3_robot")]
@@ -61,6 +62,22 @@ script = ExtResource("2_cam")
 target = NodePath("../Robot")
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=2050812205]
-transform = Transform3D(1, 0, 0, 0, 0.81915206, 0.57357645, 0, -0.57357645, 0.81915206, 0, 2.5, 3.57037)
+transform = Transform3D(1, 0, 0, 0, 0.57357645, 0.81915206, 0, -0.81915206, 0.57357645, 0, 2.5, 1.7505188)
 fov = 45.0
 size = 10.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Message" type="Label" parent="HUD" groups=["hud"]]
+script = ExtResource("6_hud")
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 24.0
+offset_right = 200.0
+offset_bottom = 50.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.94, 0.89, 0.77, 1)
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1

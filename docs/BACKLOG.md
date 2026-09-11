@@ -2,7 +2,7 @@
 
 ## NOW
 
-- Godot-Umzug, Schritt 2 gebaut (2026-09-11): Klumpenfeld 20x20 m prozedural (Seed exportiert), Trauben aus 8–16 verformten Kugeln mit Bindung, härter nach außen, freier Hof 3 m um die Basis, Klumpen versperren (Kollision, Roboter gleitet entlang). Dazu aus der Rückmeldung zu Schritt 1: Tempo 1.2 m/s, Kamera nah mit Vorlauf und Mausrad-Zoom, nur Perspektive. Wartet auf Rückmeldung, bevor Schritt 3 (Arm, Zielen, Brechen) beginnt.
+- Godot-Umzug, Schritt 3 gebaut (2026-09-11): Arm als Turm mit Zwei-Glieder-IK (Joint_arm_1/Joint_arm_2), Hover-Zielen per Raycast mit Ring (hell = in Reichweite, rot = außerhalb), Schlag im Takt mit Hitstop und Kamerawackeln, Brechen im Wucht-Radius (chip = (Kraft − bind) · Nähe, Teile schrumpfen und verschwinden, Kern zu hart), Brocken als RigidBody3D, Staub und Funken. Dazu aus der Rückmeldung zu Schritt 2: Kamera 55°, Stretch canvas_items/expand, Feld dichter und gestapelt, dunkle Erde unter dem Feld. Wartet auf Rückmeldung, bevor Schritt 4 (Einsammeln, Basis, Akku, Stauraum) beginnt.
 - Prototyp 7 testen: Meißel-Roboter (bricht, mehrfach kaufbar) neben Kehrbesen (sammelt, mehrfach). Testfragen: Macht ein Helfer, der bricht, genauso Freude wie einer, der sammelt? Und: Was macht der Spieler selbst, wenn drei Meißler arbeiten?
 
 ## NEXT

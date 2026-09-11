@@ -1,6 +1,6 @@
 extends Node3D
 ## Hauptszene. Für den automatischen Check ohne Spieler:
-##   --screenshot=<pfad>  speichert nach 270 Frames ein Bild und beendet das Spiel.
+##   --screenshot=<pfad>  speichert nach 540 Frames ein Bild und beendet das Spiel.
 ##   --drive              hält dabei W+D gedrückt, damit man Fahrt und Drehung sieht.
 
 var _screenshot_path: String = ""
@@ -26,7 +26,13 @@ func _process(_delta: float) -> void:
 	if _drive and _frames == 250:
 		Input.action_release("move_forward")
 		Input.action_release("move_right")
-	if _frames == 270:
+		# Maus auf einen Klumpen vor dem Roboter (oben rechts von der Bildmitte).
+		Input.warp_mouse(get_viewport().get_visible_rect().size * Vector2(0.62, 0.36))
+	if _drive and _frames == 520:
+		var arm := $Robot/Arm
+		var chunks := get_tree().get_nodes_in_group("chunks").size()
+		print("arm: target=%s in_reach=%s chunks=%d parts_left=%d" % [arm.target_part, arm.target_in_reach, chunks, get_tree().get_nodes_in_group("lump_parts").size()])
+	if _frames == 540:
 		var robot: Node3D = $Robot
 		print("robot pos=%s yaw=%.1f deg dist=%.2f" % [robot.global_position, rad_to_deg(robot.rotation.y), robot.global_position.length()])
 		var field := $LumpField
