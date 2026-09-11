@@ -4,11 +4,11 @@ extends CharacterBody3D
 
 @export_group("Fahren")
 ## Höchsttempo in m/s.
-@export var max_speed: float = 2.5
+@export var max_speed: float = 1.2
 ## Beschleunigung in m/s², wenn eine Taste gehalten wird.
-@export var acceleration: float = 5.0
+@export var acceleration: float = 2.4
 ## Abbremsen in m/s², wenn keine Taste gehalten wird.
-@export var deceleration: float = 7.0
+@export var deceleration: float = 3.4
 ## Wie schnell sich der Roboter in Fahrtrichtung dreht (größer = schneller, ~1/s).
 @export var turn_speed: float = 6.0
 

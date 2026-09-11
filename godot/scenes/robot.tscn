@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://c0klumpen0robot"]
+[gd_scene load_steps=5 format=3 uid="uid://ddcyy3xgnumbr"]
 
 [ext_resource type="Script" path="res://scripts/robot.gd" id="1_robot"]
 

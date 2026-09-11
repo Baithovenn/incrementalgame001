@@ -1,19 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://c0klumpen00main"]
+[gd_scene format=3 uid="uid://ddcyy3xgvsk4l"]
 
-[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
-[ext_resource type="Script" path="res://scripts/camera_rig.gd" id="2_cam"]
-[ext_resource type="PackedScene" uid="uid://c0klumpen0robot" path="res://scenes/robot.tscn" id="3_robot"]
-[ext_resource type="Shader" path="res://shaders/ground.gdshader" id="4_ground"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_ground"]
-shader = ExtResource("4_ground")
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
-material = SubResource("ShaderMaterial_ground")
-size = Vector2(40, 40)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
-size = Vector3(40, 0.2, 40)
+[ext_resource type="Script" uid="uid://17uk88ve1dvw" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://cnoq38r8fjybu" path="res://scripts/camera_rig.gd" id="2_cam"]
+[ext_resource type="PackedScene" uid="uid://ddcyy3xgnumbr" path="res://scenes/robot.tscn" id="3_robot"]
+[ext_resource type="Shader" uid="uid://1y0cctibigya" path="res://shaders/ground.gdshader" id="4_ground"]
+[ext_resource type="Script" path="res://scripts/lump_field.gd" id="5_field"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -23,31 +14,53 @@ ambient_light_color = Color(0.62, 0.58, 0.52, 1)
 ambient_light_energy = 0.6
 tonemap_mode = 2
 
-[node name="Main" type="Node3D"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ground"]
+render_priority = 0
+shader = ExtResource("4_ground")
+shader_parameter/color_a = Color(0.165, 0.133, 0.098, 1)
+shader_parameter/color_b = Color(0.215, 0.176, 0.128, 1)
+shader_parameter/line_color = Color(0.3, 0.26, 0.2, 1)
+shader_parameter/cell_size = 1.0
+shader_parameter/line_width = 0.02
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+material = SubResource("ShaderMaterial_ground")
+size = Vector2(40, 40)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(40, 0.2, 40)
+
+[node name="Main" type="Node3D" unique_id=245648058]
 script = ExtResource("1_main")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2101710813]
 environment = SubResource("Environment_main")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=674189695]
 transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
 light_color = Color(1, 0.95, 0.86, 1)
 light_energy = 1.2
 shadow_enabled = true
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1442973838]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=1522747921]
 mesh = SubResource("PlaneMesh_ground")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=759053913]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 shape = SubResource("BoxShape3D_ground")
 
-[node name="Robot" parent="." instance=ExtResource("3_robot")]
+[node name="LumpField" type="Node3D" parent="."]
+script = ExtResource("5_field")
 
-[node name="CameraRig" type="Node3D" parent="." node_paths=PackedStringArray("target")]
+[node name="Robot" parent="." unique_id=1149479146 instance=ExtResource("3_robot")]
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=263994775 node_paths=PackedStringArray("target")]
 script = ExtResource("2_cam")
 target = NodePath("../Robot")
 
-[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=2050812205]
+transform = Transform3D(1, 0, 0, 0, 0.81915206, 0.57357645, 0, -0.57357645, 0.81915206, 0, 2.5, 3.57037)
+fov = 45.0
+size = 10.0

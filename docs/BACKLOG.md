@@ -2,7 +2,7 @@
 
 ## NOW
 
-- Godot-Umzug, Schritt 1 gebaut (2026-09-11): Boden 40x40 m mit Schachbrett, Kamera schräg von oben (folgt weich, dreht nicht), Hauptroboter als CSG-Scheibe mit Schwebe-Wippen, WASD mit Trägheit. Projekt unter `godot/`. Wartet auf Rückmeldung zum Fahrgefühl und zur Kamera, bevor Schritt 2 (Klumpenfeld) beginnt.
+- Godot-Umzug, Schritt 2 gebaut (2026-09-11): Klumpenfeld 20x20 m prozedural (Seed exportiert), Trauben aus 8–16 verformten Kugeln mit Bindung, härter nach außen, freier Hof 3 m um die Basis, Klumpen versperren (Kollision, Roboter gleitet entlang). Dazu aus der Rückmeldung zu Schritt 1: Tempo 1.2 m/s, Kamera nah mit Vorlauf und Mausrad-Zoom, nur Perspektive. Wartet auf Rückmeldung, bevor Schritt 3 (Arm, Zielen, Brechen) beginnt.
 - Prototyp 7 testen: Meißel-Roboter (bricht, mehrfach kaufbar) neben Kehrbesen (sammelt, mehrfach). Testfragen: Macht ein Helfer, der bricht, genauso Freude wie einer, der sammelt? Und: Was macht der Spieler selbst, wenn drei Meißler arbeiten?
 
 ## NEXT
